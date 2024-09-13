@@ -1,4 +1,4 @@
-def test():
-    print("Hello World")
+import requests
+from bs4 import BeautifulSoup
 
-test()
+print("Hello World")
