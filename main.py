@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import pandas as pd
 
 def get_watches(page_count):
     
@@ -50,4 +51,27 @@ def get_watches(page_count):
         print(f"Error has occurred: {e}")
         return []
 
-url = "https://www.liveauctioneers.com/c/watches/97/"
+def watch_shortlist(page_count, target_price, plus_minus):
+    watches = get_watches(page_count = page_count)
+    # shortlist = {}
+    shortlist_df = pd.DataFrame()
+
+    price_lower_bound = max(0, target_price - plus_minus)
+    price_upper_bound = target_price + plus_minus
+
+    for key, value in watches.items():
+        if value >= price_lower_bound and value <= price_upper_bound:
+            row = pd.DataFrame({"Name": [key], "Price": [value]})
+            shortlist_df = pd.concat([shortlist_df, row], ignore_index=True)
+    
+    shortlist_df = shortlist_df.sort_values(by=["Price"], ascending= True)
+    
+    return shortlist_df
+
+maxPageCount = int(input("How deep (in terms of number of pages) do you want to dive into the auction listing? "))
+targetPrice = int(input("What's your target price? (I suggest you don't go below 100 if you're serious about buying one of these watches) "))
+plusMinus = int(input("How much higher than your target price are you willing to go? "))
+
+watch_list = watch_shortlist(page_count = maxPageCount, target_price = targetPrice, plus_minus = plusMinus)
+
+print(watch_list)
